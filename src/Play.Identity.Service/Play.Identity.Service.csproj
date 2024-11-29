@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <UserSecretsId>9e1206c5-c742-4387-b89f-46c8e80b4654</UserSecretsId>
-    <PackageDescription>Contracts of Catalog Microservice</PackageDescription>
+    <PackageDescription>Contracts of Identity Microservice</PackageDescription>
     <Authors>Selva GS</Authors>
     <Company>Lets Learn .Net</Company>
   </PropertyGroup>
