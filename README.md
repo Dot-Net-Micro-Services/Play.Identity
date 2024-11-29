@@ -18,3 +18,9 @@ $env:GH_OWNER="Dot-Net-Micro-Services"
 $env:GH_PAT="[PAT HERE]"
 docker build --secret id=GH_OWNER --secret id=GH_PAT -t play.identity:$version .
 ```
+
+## Run the docker image
+```powershell
+$adminPass="[PASSWORD HERE]"
+docker run -it --rm -p 5002:5002 --name identity -e  IdentitySettings__AdminUserPassword=$adminPass play.identity:$version
+```
