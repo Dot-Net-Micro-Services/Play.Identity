@@ -3,7 +3,7 @@ Identity Microservice
 
 ## Create and publish package
 ```powershell
-$version="1.0.3"
+$version="1.0.4"
 $owner="Dot-Net-Micro-Services"
 $gh_pat="[PAT HERE]"
 
@@ -23,6 +23,8 @@ docker build --secret id=GH_OWNER --secret id=GH_PAT -t play.identity:$version .
 ```powershell
 $adminPass="[PASSWORD HERE]"
 $cosmosDbConnectionString="[CONNECTION STRING HERE]"
-docker run -it --rm -p 5002:5002 --name identity -e  IdentitySettings__AdminUserPassword=$adminPass  -e
-MongoDbSettings__ConnectionString=$cosmosDbConnectionString play.identity:$version
+$serviceBusConnectionString="[CONNECTION STRING HERE]"
+docker run -it --rm -p 5002:5002 --name identity -e  IdentitySettings__AdminUserPassword=$adminPass -e
+MongoDbSettings__ConnectionString=$cosmosDbConnectionString -e
+ServiceBusSettings__ConnectionString=$serviceBusConnectionString -e ServiceSettings__MessageBroker="SERVICEBUS" play.identity:$version
 ```

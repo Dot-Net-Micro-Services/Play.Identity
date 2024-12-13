@@ -1,24 +1,17 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using GreenPipes;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using Play.Common.MassTransit;
-using Play.Common.MongoDB;
 using Play.Common.Settings;
 using Play.Identity.Service.Entities;
 using Play.Identity.Service.Exceptions;
@@ -53,7 +46,7 @@ namespace Play.Identity.Service
                     serviceSettings.ServiceName
                 );
 
-            services.AddMassTransitWithRabbitMQ(retryConfigurator => {
+            services.AddMassTransitWithMessageBroker(Configuration, retryConfigurator => {
                 retryConfigurator.Interval(3, TimeSpan.FromSeconds(5));
                 retryConfigurator.Ignore(typeof(UnknownUserException), typeof(InSufficientFundsException));
             });
