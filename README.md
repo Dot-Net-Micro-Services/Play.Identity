@@ -35,3 +35,17 @@ ServiceBusSettings__ConnectionString=$serviceBusConnectionString -e ServiceSetti
 az acr login --name $acrname
 docker push "$acrname.azurecr.io/play.identity:$version"
 ```
+
+## Create the Kubernets namespace
+```powershell
+$namespace="identity"
+kubectl create namespace $namespace
+```
+
+## Create the Kubernetes secrets
+```powershell
+kubectl create secret generic identity-secrets 
+--from-literal=cosmosdb-connectionstring=$cosmosDbConnectionString
+--from-literal=servicebusconnectionstring=$serviceBusConnectionString
+--from-literal=admin-password=$adminPass -n $namespace
+```
