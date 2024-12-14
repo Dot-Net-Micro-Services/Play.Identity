@@ -14,6 +14,7 @@ using Microsoft.OpenApi.Models;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
+using Play.Common.HealthChecks;
 using Play.Common.MassTransit;
 using Play.Common.Settings;
 using Play.Identity.Service.Entities;
@@ -78,16 +79,7 @@ namespace Play.Identity.Service
             });
 
             services.AddHealthChecks()
-                    .Add(new HealthCheckRegistration(
-                        "mongodb",
-                        serviceProvider => {
-                            var mongoClient = new MongoClient(mongoDbSettings.ConnectionString);
-                            return new MongoDBHealthCheck(mongoClient);
-                        },
-                        HealthStatus.Unhealthy,
-                        ["ready"],
-                        TimeSpan.FromSeconds(5)
-                    ));
+                    .AddMongoDbHealthCheck();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -125,12 +117,7 @@ namespace Play.Identity.Service
             {
                 endpoints.MapControllers();
                 endpoints.MapRazorPages();
-                endpoints.MapHealthChecks("/health/ready", new HealthCheckOptions() {
-                    Predicate = (check) => check.Tags.Contains("ready")
-                });
-                endpoints.MapHealthChecks("/health/live", new HealthCheckOptions() {
-                    Predicate = (check) => false
-                });
+                endpoints.MapPlayEconomyHealthChecks();
             });
         }
     }
