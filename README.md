@@ -3,7 +3,7 @@ Identity Microservice
 
 ## Create and publish package
 ```powershell
-$version="1.0.6"
+$version="1.0.7"
 $owner="Dot-Net-Micro-Services"
 $gh_pat="[PAT HERE]"
 
@@ -40,14 +40,6 @@ docker push "$acrname.azurecr.io/play.identity:$version"
 ```powershell
 $namespace="identity"
 kubectl create namespace $namespace
-```
-
-## Create the Kubernetes secrets
-```powershell
-kubectl create secret generic identity-secrets 
---from-literal=cosmosdb-connectionstring=$cosmosDbConnectionString
---from-literal=servicebusconnectionstring=$serviceBusConnectionString
---from-literal=admin-password=$adminPass -n $namespace
 ```
 
 ## Create the Kubernets pod
