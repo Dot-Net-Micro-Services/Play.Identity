@@ -13,9 +13,9 @@ spec:
     spec:
       containers:
       - name: identity
-        image: playeconomyacrdev.azurecr.io/play.identity
+        image: playeconomyacrdev.azurecr.io/play.identity:1.0.4
         env:
-          - name: ServiceSettings__MessageBroker
+          - name: ServiceSettings__MessageBroke
             value: SERVICEBUS
           - name: MongoDbSettings__ConnectionString
             valueFrom: 
@@ -38,3 +38,16 @@ spec:
             cpu: "150m"
         ports:
         - containerPort: 5002
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: identity-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: identity
+  ports:
+  - port: 80
+    targetPort: 5002
+

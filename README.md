@@ -49,3 +49,8 @@ kubectl create secret generic identity-secrets
 --from-literal=servicebusconnectionstring=$serviceBusConnectionString
 --from-literal=admin-password=$adminPass -n $namespace
 ```
+
+## Create the Kubernets pod
+```powershell
+kubernetes apply -f .\kubernetes\identity.yaml -n $namespace
+```
