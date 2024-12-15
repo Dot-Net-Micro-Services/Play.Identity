@@ -42,11 +42,6 @@ $namespace="identity"
 kubectl create namespace $namespace
 ```
 
-## Create the Kubernets pod
-```powershell
-kubectl apply -f .\kubernetes\identity.yaml -n $namespace
-```
-
 ## Creating the Azure Managed Identity and granting it access to key vault secrets
 ```powershell
 $appname="playeconomy"
@@ -64,7 +59,7 @@ $AKS_OIDC_ISSUER=az aks show --name $aksname --resource-group $appname --query "
 az identity federated-credential create --name $namespace --identity-name $namespace --resource-group $appname --issuer $AKS_OIDC_ISSUER --subject "system:serviceaccount:${namespace}:${namespace}-serviceaccount"
 ```
 
-## Create the signing certificate
+## Install the helm chart
 ```powershell
-kubectl apply -f .\kubernetes\signing-cer.yaml -n $namespace
+helm install identity-service .\helm -f .\helm\values.yaml -n $namespace
 ```
