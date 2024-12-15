@@ -61,5 +61,11 @@ az identity federated-credential create --name $namespace --identity-name $names
 
 ## Install the helm chart
 ```powershell
-helm install identity-service .\helm -f .\helm\values.yaml -n $namespace
+$helmUser=[guid]::Empty.Guid
+$helmPassword=az acr login --name $acrname --expose-token --output tsv --query accessToken
+
+helm registry login "$acrname.azurecr.io" --username $helmUser --password $helmPassword
+
+$chartVersion="0.1.0"
+helm upgrade identity-service oci://$acrname.azurecr.io/helm/microservice --version $chartVersion -f .\helm\values.yaml -n $namespace --install
 ```
