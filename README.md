@@ -63,3 +63,8 @@ $aksname="playeconomy-aks-dev"
 $AKS_OIDC_ISSUER=az aks show --name $aksname --resource-group $appname --query "oidcIssuerProfile.issuerUrl" -otsv
 az identity federated-credential create --name $namespace --identity-name $namespace --resource-group $appname --issuer $AKS_OIDC_ISSUER --subject "system:serviceaccount:${namespace}:${namespace}-serviceaccount"
 ```
+
+## Create the signing certificate
+```powershell
+kubectl apply -f .\kubernetes\signing-cer.yaml -n $namespace
+```
