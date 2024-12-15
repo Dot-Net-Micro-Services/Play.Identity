@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using GreenPipes;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -25,9 +26,11 @@ namespace Play.Identity.Service
     public class Startup
     {
         public const string AllowedOriginSetting = "AllowedOrigin";
-        public Startup(IConfiguration configuration)
+        private readonly IHostEnvironment environment;
+        public Startup(IConfiguration configuration, IHostEnvironment environment)
         {
             Configuration = configuration;
+            this.environment = environment;
         }
 
         public IConfiguration Configuration { get; }
@@ -38,7 +41,7 @@ namespace Play.Identity.Service
             BsonSerializer.RegisterSerializer(new GuidSerializer(MongoDB.Bson.BsonType.String));
             var serviceSettings = Configuration.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
             var mongoDbSettings = Configuration.GetSection(nameof(MongoDbSettings)).Get<MongoDbSettings>();
-            var identityServerSettings = Configuration.GetSection(nameof(IdentityServerSettings)).Get<IdentityServerSettings>();
+
             services.Configure<IdentitySettings>(Configuration.GetSection(nameof(IdentitySettings)))
                 .AddDefaultIdentity<ApplicationUser>()
                 .AddRoles<ApplicationRole>()
@@ -48,23 +51,13 @@ namespace Play.Identity.Service
                     serviceSettings.ServiceName
                 );
 
-            services.AddMassTransitWithMessageBroker(Configuration, retryConfigurator => {
+            services.AddMassTransitWithMessageBroker(Configuration, retryConfigurator =>
+            {
                 retryConfigurator.Interval(3, TimeSpan.FromSeconds(5));
                 retryConfigurator.Ignore(typeof(UnknownUserException), typeof(InSufficientFundsException));
             });
 
-            services.AddIdentityServer(options => {
-                        options.Events.RaiseErrorEvents = true;
-                        options.Events.RaiseFailureEvents = true;
-                        options.Events.RaiseSuccessEvents = true;
-                        options.IssuerUri = identityServerSettings.IssuerURI;
-                        options.KeyManagement.KeyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-                    })
-                    .AddAspNetIdentity<ApplicationUser>()
-                    .AddInMemoryApiScopes(identityServerSettings.ApiScopes)
-                    .AddInMemoryApiResources(identityServerSettings.ApiResources)
-                    .AddInMemoryClients(identityServerSettings.Clients)
-                    .AddInMemoryIdentityResources(identityServerSettings.IdentityResources);
+            AddIdentityServer(services);
 
             services.AddLocalApiAuthentication();
 
@@ -77,8 +70,9 @@ namespace Play.Identity.Service
 
             services.AddHealthChecks()
                     .AddMongoDbHealthCheck();
-            
-            services.Configure<ForwardedHeadersOptions>(options => {
+
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
                 options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
                 options.KnownNetworks.Clear();
                 options.KnownProxies.Clear();
@@ -130,6 +124,35 @@ namespace Play.Identity.Service
                 endpoints.MapRazorPages();
                 endpoints.MapPlayEconomyHealthChecks();
             });
+        }
+
+        private void AddIdentityServer(IServiceCollection services)
+        {
+            var identityServerSettings = Configuration.GetSection(nameof(IdentityServerSettings)).Get<IdentityServerSettings>();
+            var builder = services.AddIdentityServer(options =>
+            {
+                options.Events.RaiseErrorEvents = true;
+                options.Events.RaiseFailureEvents = true;
+                options.Events.RaiseSuccessEvents = true;
+                options.IssuerUri = identityServerSettings.IssuerURI;
+                options.KeyManagement.KeyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            })
+            .AddAspNetIdentity<ApplicationUser>()
+            .AddInMemoryApiScopes(identityServerSettings.ApiScopes)
+            .AddInMemoryApiResources(identityServerSettings.ApiResources)
+            .AddInMemoryClients(identityServerSettings.Clients)
+            .AddInMemoryIdentityResources(identityServerSettings.IdentityResources);
+
+            if(environment.IsProduction())
+            {
+                var identitySettings = Configuration.GetSection(nameof(IdentitySettings)).Get<IdentitySettings>();
+                var cert = X509Certificate2.CreateFromPemFile(
+                    identitySettings.CertificateCerFilePath,
+                    identitySettings.CertificateKeyFilePath
+                );
+
+                builder.AddSigningCredential(cert);
+            }
         }
     }
 }

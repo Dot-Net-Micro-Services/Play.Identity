@@ -3,7 +3,7 @@ Identity Microservice
 
 ## Create and publish package
 ```powershell
-$version="1.0.9"
+$version="1.0.10"
 $owner="Dot-Net-Micro-Services"
 $gh_pat="[PAT HERE]"
 
