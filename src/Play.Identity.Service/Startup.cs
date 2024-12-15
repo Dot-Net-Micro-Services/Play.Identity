@@ -101,6 +101,12 @@ namespace Play.Identity.Service
 
             app.UseHttpsRedirection();
 
+            app.Use((context, next) => {
+                var identitySettings = Configuration.GetSection(nameof(IdentitySettings)).Get<IdentitySettings>();
+                context.Request.PathBase = new PathString(identitySettings.PathBase);
+                return next();
+            });
+
             app.UseRouting();
 
             app.UseIdentityServer();

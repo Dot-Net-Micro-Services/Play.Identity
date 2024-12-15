@@ -3,7 +3,7 @@ Identity Microservice
 
 ## Create and publish package
 ```powershell
-$version="1.0.7"
+$version="1.0.8"
 $owner="Dot-Net-Micro-Services"
 $gh_pat="[PAT HERE]"
 
@@ -44,7 +44,7 @@ kubectl create namespace $namespace
 
 ## Create the Kubernets pod
 ```powershell
-kubernetes apply -f .\kubernetes\identity.yaml -n $namespace
+kubectl apply -f .\kubernetes\identity.yaml -n $namespace
 ```
 
 ## Creating the Azure Managed Identity and granting it access to key vault secrets
