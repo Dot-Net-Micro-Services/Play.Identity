@@ -8,8 +8,8 @@ envVariables:
   IdentitySettings__PathBase: /identity-svc
   IdentitySettings__CertificateCerFilePath: /certificates/certificate.crt
   IdentitySettings__CertificateKeyFilePath: /certificates/certificate.key
-  IdentityServerSettings__Clients__1__RedirectUris_0: "https://playeconomy.southindia.cloudapp.azure.com/authentication/login-callback"
-  IdentityServerSettings__Clients__1__PostLogoutRedirectUris_0: "https://playeconomy.southindia.cloudapp.azure.com/authentication/logout-callback"
+  IdentityServerSettings__Clients__1__RedirectUris__0: "https://playeconomy.southindia.cloudapp.azure.com/authentication/login-callback"
+  IdentityServerSettings__Clients__1__PostLogoutRedirectUris__0: "https://playeconomy.southindia.cloudapp.azure.com/authentication/logout-callback"
 
 resources:
   limits:
