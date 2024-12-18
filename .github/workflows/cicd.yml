@@ -69,6 +69,10 @@ jobs:
 
     env:
       APP_NAME: playeconomyacrdev
+      RG_NAME: playeconomy
+      CLUSTER_NAME: playeconomy-aks-dev
+      SERVICE_NAME: identity
+      HELM_CHART_VERSION: 0.1.0
   
     steps:
     - uses: actions/checkout@v4
@@ -78,6 +82,9 @@ jobs:
         client-id: ${{secrets.AZURE_CLIENT_ID}}
         tenant-id: ${{secrets.AZURE_TENANT_ID}}
         subscription-id: ${{secrets.AZURE_SUBSCRIPTION_ID}}
+
+    - name: Login to container registry
+      run: az acr login --name ${{env.APP_NAME}}
           
     - name: Build and push Docker image
       uses: docker/build-push-action@v6.10.0
@@ -86,3 +93,28 @@ jobs:
           GH_OWNER=${{github.repository_owner}}
           GH_PAT=${{secrets.GH_PAT}}
         tags: "${{env.APP_NAME}}.azurecr.io/play.identity:${{needs.generate-version.outputs.new_version}}"
+        push: true
+
+    - name: Get Aks Credentials
+      run: az aks get-credentials --resource-group ${{env.RG_NAME}} --name ${{env.CLUSTER_NAME}}
+
+    - name: Helm tool installer
+      uses: Azure/setup-helm@v3
+
+    - name: Login to Helm registry
+      run: |
+        helmUser="00000000-0000-0000-0000-000000000000"
+        helmPassword=$(az acr login --name ${{env.APP_NAME}} --expose-token --output tsv --query accessToken)
+        helm registry login ${{env.APP_NAME}}.azurecr.io --username $helmUser --password $helmPassword
+
+    - name: Deploy Helm chart
+      run: |
+        helm upgrade \
+        ${{env.SERVICE_NAME}}-service \
+        oci://${{env.APP_NAME}}.azurecr.io/helm/microservice \
+        --version ${{env.HELM_CHART_VERSION}} \
+        -f helm/values.yaml \
+        -n ${{env.SERVICE_NAME}} \
+        --set image.tag=${{needs.generate-version.outputs.new_version}} \
+        --install \
+        --wait
