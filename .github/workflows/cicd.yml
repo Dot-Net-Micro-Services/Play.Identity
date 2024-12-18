@@ -52,8 +52,30 @@ jobs:
         dotnet pack src/Play.Identity.Contracts/ \
         --configuration Release \
         -p:RepositoryUrl=https://github.com/${{github.repository_owner}}/Play.Identity \
-        -p:PackageVersion=${{ needs.generate-version.outputs.new_version }} \
+        -p:PackageVersion=${{needs.generate-version.outputs.new_version}} \
         -o packages
 
     - name: Publish
       run: dotnet nuget push packages/*.nupkg
+
+  build-and-deploy-service:
+    runs-on: ubuntu-latest
+    needs: generate-version
+  
+    permissions:
+      contents: read
+      packages: write
+
+    env:
+      APP_NAME: playeconomyacrdev
+  
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v6.10.0
+      with:
+        secrets: |
+          "GH_OWNER=${{github.repository_owner}}"
+          "GH_PAT=${{secrets.GITHUB_TOKEN}}"
+        tags: "${{env.APP_NAME}}.azurecr.io/play.identity:${{needs.generate-version.outputs.new_version}}"
