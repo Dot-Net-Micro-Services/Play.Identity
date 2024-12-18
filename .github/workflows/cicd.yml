@@ -76,6 +76,6 @@ jobs:
       uses: docker/build-push-action@v6.10.0
       with:
         secrets: |
-          "GH_OWNER=${{github.repository_owner}}"
-          "GH_PAT=${{secrets.GITHUB_TOKEN}}"
+          GH_OWNER=${{github.repository_owner}}
+          GH_PAT=${{secrets.GITHUB_TOKEN}}
         tags: "${{env.APP_NAME}}.azurecr.io/play.identity:${{needs.generate-version.outputs.new_version}}"
