@@ -14,6 +14,7 @@ using Microsoft.OpenApi.Models;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using Play.Common.HealthChecks;
+using Play.Common.Logging;
 using Play.Common.MassTransit;
 using Play.Common.Settings;
 using Play.Identity.Service.Entities;
@@ -70,6 +71,8 @@ namespace Play.Identity.Service
 
             services.AddHealthChecks()
                     .AddMongoDbHealthCheck();
+
+            services.AddSeqLogging(Configuration);
 
             services.Configure<ForwardedHeadersOptions>(options =>
             {
