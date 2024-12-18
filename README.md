@@ -69,3 +69,9 @@ helm registry login "$acrname.azurecr.io" --username $helmUser --password $helmP
 $chartVersion="0.1.0"
 helm upgrade identity-service oci://$acrname.azurecr.io/helm/microservice --version $chartVersion -f .\helm\values.yaml -n $namespace --install
 ```
+
+## Required Repository Secrets for Github Workflw
+GH_PAT: Created in GitHub User Profile -> settings -> developer settings -> personal access token
+AZURE_SUBSCRIPTION_ID: FROM Azure Portal Subscription
+AZURE_CLIENT_ID: FROM AAD APP Registration
+AZURE_TENANT_ID: FROM AAD Properties Page
